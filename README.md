@@ -1,4 +1,4 @@
 # SLM
 Personal Small Language Model For Educational Purpose
 
-This is a test message.
+![Alt text](photos/Gpt2_Architecture.png?raw=true "Title")
