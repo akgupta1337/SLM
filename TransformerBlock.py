@@ -1,6 +1,6 @@
-from MultiHeadAttn import MultiHeadAttention
-from FeedForward import FeedForward
-from LayerNormalisation import LayerNorm
+from SLM.MultiHeadAttn import MultiHeadAttention
+from SLM.FeedForward import FeedForward
+from SLM.LayerNormalisation import LayerNorm
 import torch.nn as nn
 
 class TransformerBlock(nn.Module):

@@ -9,9 +9,17 @@ def assign(left, right):
     return torch.nn.Parameter(torch.tensor(right))
 
 
-def load_weights_into_gpt(gpt):
-    with open('/home/Necromancer/akhil/nlp/params.pkl', 'rb') as f:
-        params = pickle.load(f)
+def load_weights_into_gpt(gpt, size):
+    if(size == "124M"):
+        with open('/home/Necromancer/akhil/nlp/params.pkl', 'rb') as f:
+            params = pickle.load(f)
+    elif(size == "1558M"):
+        with open('/home/Necromancer/akhil/nlp/paramsXL.pkl', 'rb') as f:
+            params = pickle.load(f)
+
+    elif(size == "355M"):
+        with open('/home/Necromancer/akhil/nlp/paramsM.pkl', 'rb') as f:
+            params = pickle.load(f)
     gpt.pos_emb.weight = assign(gpt.pos_emb.weight, params['wpe'])
     gpt.tok_emb.weight = assign(gpt.tok_emb.weight, params['wte'])
     

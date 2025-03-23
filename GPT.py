@@ -1,32 +1,45 @@
-from TransformerBlock import TransformerBlock
-from LayerNormalisation import LayerNorm
+from SLM.TransformerBlock import TransformerBlock
+from SLM.LayerNormalisation import LayerNorm
 import torch
 import torch.nn as nn
 
 class GPTModel(nn.Module):
-    def __init__(self):
+    def getcfg(self, size):
+        BASE_CONFIG = {
+            "vocab_size": 50257,     # Vocabulary size
+            "context_length": 1024,  # Context length
+            "drop_rate": 0.0,        # Dropout rate
+            "qkv_bias": True         # Query-key-value bias
+        }
+        model_configs = {
+            "124M": {"emb_dim": 768, "n_layers": 12, "n_heads": 12},
+            "355M": {"emb_dim": 1024, "n_layers": 24, "n_heads": 16},
+            "774M": {"emb_dim": 1280, "n_layers": 36, "n_heads": 20},
+            "1558M": {"emb_dim": 1600, "n_layers": 48, "n_heads": 25},
+        }
+        BASE_CONFIG.update(model_configs[size])
+        
+        return BASE_CONFIG
+
+    def __init__(self, size):
+        self.size = size
         super().__init__()
-        cfg = {
-                "vocab_size": 50257,
-                "context_length": 1024,
-                "emb_dim": 768,
-                "n_heads": 12,
-                "n_layers": 12,
-                "drop_rate": 0.1,
-                "qkv_bias": True
-            }
-        self.tok_emb = nn.Embedding(cfg["vocab_size"], cfg["emb_dim"])
-        self.pos_emb = nn.Embedding(cfg["context_length"], cfg["emb_dim"])
-        self.drop_emb = nn.Dropout(cfg["drop_rate"])
+
+        self.cfg = self.getcfg(size)
+        
+        self.tok_emb = nn.Embedding(self.cfg["vocab_size"], self.cfg["emb_dim"])
+        self.pos_emb = nn.Embedding(self.cfg["context_length"], self.cfg["emb_dim"])
+        self.drop_emb = nn.Dropout(self.cfg["drop_rate"])
         
         self.trf_blocks = nn.Sequential(
-            *[TransformerBlock(cfg) for _ in range(cfg["n_layers"])])
+            *[TransformerBlock(self.cfg) for _ in range(self.cfg["n_layers"])])
         
-        self.final_norm = LayerNorm(cfg["emb_dim"])
+        self.final_norm = LayerNorm(self.cfg["emb_dim"])
         self.out_head = nn.Linear(
-            cfg["emb_dim"], cfg["vocab_size"], bias=False
+            self.cfg["emb_dim"], self.cfg["vocab_size"], bias=False
         )
 
+    
     def forward(self, in_idx):
         batch_size, seq_len = in_idx.shape
         tok_embeds = self.tok_emb(in_idx)
